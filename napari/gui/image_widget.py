@@ -1,5 +1,7 @@
 
 from OpenGL import GL
+from OpenGL.raw.GL.VERSION.GL_1_0 import glMatrixMode, glLoadIdentity
+from OpenGL.raw.GL.VERSION.GL_1_1 import GL_PROJECTION
 from PyQt5 import QtWidgets, QtCore, QtGui, QtOpenGL
 from OpenGL.GL.ARB.texture_rg import GL_R32F
 
@@ -10,6 +12,7 @@ import time
 class ImageWidget(QtOpenGL.QGLWidget):
 
     def __init__(self, image, dimx=0, dimy=1):
+
 
         self.brightness = 1
         self.image = image
@@ -35,6 +38,10 @@ class ImageWidget(QtOpenGL.QGLWidget):
         self.update()
 
     def initializeGL(self):
+        self.qglClearColor(QtGui.QColor(0, 0, 0))
+
+        glMatrixMode(GL_PROJECTION)
+        glLoadIdentity()
 
         w = self.image_width
         h = self.image_height
