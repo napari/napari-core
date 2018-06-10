@@ -20,20 +20,23 @@ from napari.gui.panzoom import PanZoomCamera
 
 class ImageCanvas(SceneCanvas):
 
-    def __init__(self):
-        super(ImageCanvas, self).__init__(keys = 'interactive')
-        self.size = 800, 600
+    def __init__(self, parent_widget, window_width, window_height):
+        super(ImageCanvas, self).__init__(keys=None, vsync=True)
+
+        self.size = window_width, window_height
 
         self.unfreeze()
         self.brightness = 1
-
-
+        self.parent_widget = parent_widget
+        self.freeze()
 
     def set_image(self, name, image, dimx=0, dimy=1):
 
+        self.unfreeze()
         self.title = name
         self.image = image
-        self.show()
+        self.freeze()
+        #self.show()
 
         # Set up a viewbox to display the image with interactive pan/zoom
         view = self.central_widget.add_view()
@@ -54,8 +57,9 @@ class ImageCanvas(SceneCanvas):
         # view.camera.zoom(0.1, (250, 200))
 
 
-
-
+    def on_key_press(self, event):
+        #print("Sending to QT parent: %s " % event.key)
+        self.parent_widget.on_key_press(event)
 
 
     def setBrightness(self, brightness):

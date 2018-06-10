@@ -9,18 +9,24 @@ from napari.gui.image_canvas import ImageCanvas
 
 class ImageWidget(QWidget):
 
-    def __init__(self, image, parent=None):
+    def __init__(self, image, name=None, window_width=800, window_height=800, parent=None):
         super(ImageWidget, self).__init__(parent)
 
-        image_widget = ImageCanvas()
+        if name is None:
+            name = "image %s" % str(image.shape)
 
-        image_widget.set_image("image",image)
+        self.setWindowTitle(name)
+        self.resize(window_width, window_height)
+
+        image_canvas = ImageCanvas(self, window_width, window_height)
+
+        image_canvas.set_image("image",image)
 
         grid = QGridLayout()
         grid.setContentsMargins(0, 0, 0, 10);
         grid.setColumnStretch(0,4)
         grid.setRowStretch(0, 4)
-        grid.addWidget(image_widget.native, 0, 0)
+        grid.addWidget(image_canvas.native, 0, 0)
 
         slider = QSlider(Qt.Horizontal)
         slider.setFocusPolicy(Qt.StrongFocus)
@@ -31,7 +37,7 @@ class ImageWidget(QWidget):
         slider.setSingleStep(1)
 
         def value_changed(self):
-            image_widget.setBrightness(slider.value()*0.01)
+            image_canvas.setBrightness(slider.value()*0.01)
 
 
         slider.valueChanged.connect(value_changed)
@@ -43,7 +49,14 @@ class ImageWidget(QWidget):
 
         self.setLayout(grid)
 
-        self.setWindowTitle("ImageDisplay")
-        self.resize(400, 300)
 
 
+
+    def on_key_press(self, event):
+        print(event.key)
+        if (event.key == 'F' or event.key == 'Enter') and not self.isFullScreen():
+            #print("showFullScreen!")
+            self.showFullScreen()
+        elif (event.key == 'F' or event.key == 'Escape') and self.isFullScreen():
+            #print("showNormal!)
+            self.showNormal()
