@@ -26,35 +26,38 @@ class ImageCanvas(SceneCanvas):
         self.size = window_width, window_height
 
         self.unfreeze()
+
+        self.image_visual = None
         self.brightness = 1
         self.parent_widget = parent_widget
+        self.title = "image"
+        self.image = None
+        # Set up a viewbox to display the image with interactive pan/zoom
+        self.view = self.central_widget.add_view()
+        self.interpolation = 'nearest'
+
+        self.image_visual = scene.visuals.Image(None, interpolation=self.interpolation,
+                                                parent=self.view.scene, method='subdivide')
+
         self.freeze()
+
+
+
 
     def set_image(self, name, image, dimx=0, dimy=1):
 
-        self.unfreeze()
         self.title = name
         self.image = image
-        self.freeze()
-        #self.show()
-
-        # Set up a viewbox to display the image with interactive pan/zoom
-        view = self.central_widget.add_view()
-
-        # Create the image
-        #img_data = read_png(load_data_file('mona_lisa/mona_lisa_sm.png'))
-        interpolation = 'nearest'
-
-        image_visual = scene.visuals.Image(self.image, interpolation=interpolation,
-                                           parent=view.scene, method='subdivide')
-
+        self.image_visual.set_data(image)
+        self.view.camera.set_range()
 
         # Set 2D camera (the camera will scale to the contents in the scene)
-        view.camera = PanZoomCamera(aspect=1)
+        self.view.camera = PanZoomCamera(aspect=1)
         # flip y-axis to have correct aligment
-        view.camera.flip = (0, 1, 0)
-        view.camera.set_range()
+        self.view.camera.flip = (0, 1, 0)
+        self.view.camera.set_range()
         # view.camera.zoom(0.1, (250, 200))
+
 
 
     def on_key_press(self, event):
@@ -66,4 +69,9 @@ class ImageCanvas(SceneCanvas):
         print("brightess = %f" % brightness)
         self.brightness = brightness
         self.update()
+
+    def set_cmap(self, cmap):
+        self.image_visual.cmap = cmap
+        self.update()
+
 

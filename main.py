@@ -1,5 +1,6 @@
 import sys
 
+import vispy
 from PyQt5.QtWidgets import QApplication
 import numpy as np
 from napari.gui.image_widget import ImageWidget
@@ -20,8 +21,20 @@ if __name__ == '__main__':
     application = QApplication(sys.argv)
 
     # opening an image widget for theb image:
-    imgdis = ImageWidget(image, window_width=512, window_height=512)
-    imgdis.show()
+    print("first")
+    imgdis1 = ImageWidget(image, window_width=512, window_height=512)
+    imgdis1.set_cmap("viridis")
+    imgdis1.show()
+    imgdis1.raise_to_top()
+
+
+    print("second")
+    imgdis2 = ImageWidget(image, window_width=512, window_height=512)
+    imgdis1.set_cmap("blues")
+    imgdis2.show()
+    imgdis2.raise_to_top()
+
+    print(vispy.color.get_colormaps())
 
 
     sys.exit(application.exec_())
