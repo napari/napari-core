@@ -14,7 +14,7 @@ class ImageWidget(QWidget):
 
         image_widget = ImageCanvas()
 
-        image_widget.set_image(image)
+        image_widget.set_image("image",image)
 
         grid = QGridLayout()
         grid.setContentsMargins(0, 0, 0, 10);
