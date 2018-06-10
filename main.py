@@ -2,7 +2,7 @@ import sys
 
 from PyQt5.QtWidgets import QApplication
 import numpy as np
-from napari.gui.image_display import ImageDisplay
+from napari.gui.image_widget import ImageWidget
 
 if __name__ == '__main__':
 
@@ -17,7 +17,7 @@ if __name__ == '__main__':
     # starting
     app = QApplication(sys.argv)
 
-    imgdis = ImageDisplay(image)
+    imgdis = ImageWidget(image)
     imgdis.show()
 
     sys.exit(app.exec_())

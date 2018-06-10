@@ -10,9 +10,9 @@ Show an image using gloo.
 
 import numpy as np
 
-from sandbox.vispy import Application
-from sandbox.vispy import app
-from sandbox.vispy import clear, set_clear_color, set_viewport, Program
+from sandbox.displayimage import Application
+from sandbox.displayimage import app
+from sandbox.displayimage import clear, set_clear_color, set_viewport, Program
 
 
 # Image
