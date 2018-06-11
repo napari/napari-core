@@ -22,14 +22,14 @@ if __name__ == '__main__':
 
     # opening an image widget for theb image:
     print("first")
-    imgdis1 = ImageWidget(image, window_width=512, window_height=512)
+    imgdis1 = ImageWidget(image, '1' , window_width=512, window_height=512)
     imgdis1.set_cmap("viridis")
     imgdis1.show()
     imgdis1.raise_to_top()
 
 
     print("second")
-    imgdis2 = ImageWidget(image, window_width=512, window_height=512)
+    imgdis2 = ImageWidget(image, '2',window_width=512, window_height=512)
     imgdis1.set_cmap("blues")
     imgdis2.show()
     imgdis2.raise_to_top()

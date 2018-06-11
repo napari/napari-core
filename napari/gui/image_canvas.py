@@ -20,34 +20,46 @@ from napari.gui.panzoom import PanZoomCamera
 
 class ImageCanvas(SceneCanvas):
 
+
+    # get available interpolation methods
+    interpolation_method_names = scene.visuals.Image(None).interpolation_functions
+    interpolation_method_names = list(interpolation_method_names)
+    interpolation_method_names.sort()
+    interpolation_method_names.remove('sinc') # does not work well on my machine
+    #print(interpolation_method_names)
+
+
+
     def __init__(self, parent_widget, window_width, window_height):
         super(ImageCanvas, self).__init__(keys=None, vsync=True)
 
         self.size = window_width, window_height
 
+
         self.unfreeze()
 
-        self.image_visual = None
-        self.brightness = 1
         self.parent_widget = parent_widget
-        self.title = "image"
-        self.image = None
         # Set up a viewbox to display the image with interactive pan/zoom
         self.view = self.central_widget.add_view()
-        self.interpolation = 'nearest'
-
-        self.image_visual = scene.visuals.Image(None, interpolation=self.interpolation,
+        self.image_visual = scene.visuals.Image(None,
                                                 parent=self.view.scene, method='subdivide')
+
+
+        self.image = None
+        self.brightness = 1
+        self.interpolation_index = 0
 
         self.freeze()
 
+        self.set_interpolation('nearest')
 
 
 
-    def set_image(self, name, image, dimx=0, dimy=1):
 
-        self.title = name
+    def set_image(self, image, dimx=0, dimy=1):
+
         self.image = image
+
         self.image_visual.set_data(image)
         self.view.camera.set_range()
 
@@ -59,10 +71,20 @@ class ImageCanvas(SceneCanvas):
         # view.camera.zoom(0.1, (250, 200))
 
 
+    def get_interpolation_name(self):
+        return type(self).interpolation_method_names[self.interpolation_index]
 
-    def on_key_press(self, event):
-        #print("Sending to QT parent: %s " % event.key)
-        self.parent_widget.on_key_press(event)
+    def set_interpolation(self, interpolation):
+        self.set_interpolation_index(type(self).interpolation_method_names.index(interpolation))
+
+    def increment_interpolation_index(self):
+        self.set_interpolation_index(self.interpolation_index+1)
+
+    def set_interpolation_index(self, interpolation_index):
+        self.interpolation_index = interpolation_index % len(type(self).interpolation_method_names)
+        self.image_visual.interpolation = type(self).interpolation_method_names[self.interpolation_index]
+        #print(self.image_visual.interpolation)
+        self.update()
 
 
     def setBrightness(self, brightness):
@@ -73,5 +95,18 @@ class ImageCanvas(SceneCanvas):
     def set_cmap(self, cmap):
         self.image_visual.cmap = cmap
         self.update()
+
+
+    def on_key_press(self, event):
+        #print("Sending to QT parent: %s " % event.key)
+        self.parent_widget.on_key_press(event)
+
+
+
+
+
+
+
+
 
 

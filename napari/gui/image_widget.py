@@ -12,15 +12,16 @@ class ImageWidget(QWidget):
     def __init__(self, image, name=None, window_width=800, window_height=800, parent=None):
         super(ImageWidget, self).__init__(parent)
 
-        if name is None:
-            name = "image %s" % str(image.shape)
+        self.image = image
+        self.name = name
 
-        self.setWindowTitle(name)
+
+
         self.resize(window_width, window_height)
 
         self.image_canvas = ImageCanvas(self, window_width, window_height)
 
-        self.image_canvas.set_image("image",image)
+        self.image_canvas.set_image(image)
 
         grid = QGridLayout()
         grid.setContentsMargins(0, 0, 0, 10);
@@ -49,19 +50,35 @@ class ImageWidget(QWidget):
 
         self.setLayout(grid)
 
+        self.update_title()
+
+
+
+    def update_title(self):
+        name = self.name
+
+        if self.name is None:
+            name = ''
+
+        title = "Image %s %s %s" % (name, str(self.image.shape), self.image_canvas.get_interpolation_name())
+        self.setWindowTitle(title)
+
 
     def set_cmap(self, cmap):
       if self.image_canvas is not None:
           self.image_canvas.set_cmap(cmap)
 
     def on_key_press(self, event):
-        print(event.key)
+        #print(event.key)
         if (event.key == 'F' or event.key == 'Enter') and not self.isFullScreen():
             #print("showFullScreen!")
             self.showFullScreen()
         elif (event.key == 'F' or event.key == 'Escape') and self.isFullScreen():
             #print("showNormal!)
             self.showNormal()
+        elif event.key == 'I':
+            self.image_canvas.increment_interpolation_index()
+            self.update_title()
 
     def raise_to_top(self):
         super().raise_()
