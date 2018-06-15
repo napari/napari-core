@@ -14,14 +14,18 @@ class ImageWidget(QWidget):
 
         self.image = image
         self.name = name
-
+        self.point = list(0 for i in self.image.shape)
+        self.nbdim   = len(self.image.shape)
+        self.axis0 = self.nbdim - 2
+        self.axis1 = self.nbdim - 1
+        self.slider_index_map = {}
 
 
         self.resize(window_width, window_height)
 
         self.image_canvas = ImageCanvas(self, window_width, window_height)
 
-        self.image_canvas.set_image(image)
+
 
         grid = QGridLayout()
         grid.setContentsMargins(0, 0, 0, 10);
@@ -29,21 +33,13 @@ class ImageWidget(QWidget):
         grid.setRowStretch(0, 4)
         grid.addWidget(self.image_canvas.native, 0, 0)
 
-        slider = QSlider(Qt.Horizontal)
-        slider.setFocusPolicy(Qt.StrongFocus)
-        slider.setTickPosition(QSlider.TicksBothSides)
-        slider.setMinimum(0)
-        slider.setMaximum(100)
-        slider.setTickInterval(10)
-        slider.setSingleStep(1)
-
-        def value_changed(self):
-            self.image_canvas.setBrightness(slider.value()*0.01)
+        row = 1
+        for axis in range(self.nbdim):
+            if axis != self.axis0 and axis != self.axis1:
+                self.add_slider(grid, row, axis, self.image.shape[axis])
+                row += 1
 
 
-        slider.valueChanged.connect(value_changed)
-
-        grid.addWidget(slider, 1, 0)
         #grid.addWidget(self.createExampleGroup("0,1"), 0, 1)
         #grid.addWidget(self.createExampleGroup("1,1"), 1, 1)
 
@@ -51,6 +47,33 @@ class ImageWidget(QWidget):
         self.setLayout(grid)
 
         self.update_title()
+        self.update_image()
+
+    def add_slider(self, grid, row,  axis, length):
+        slider = QSlider(Qt.Horizontal)
+        slider.setFocusPolicy(Qt.StrongFocus)
+        slider.setTickPosition(QSlider.TicksBothSides)
+        slider.setMinimum(0)
+        slider.setMaximum(length-1)
+        slider.setTickInterval(10)
+        slider.setSingleStep(1)
+        grid.addWidget(slider, row, 0)
+
+        def value_changed():
+            self.point[axis] = slider.value()
+            self.update_image()
+
+        slider.valueChanged.connect(value_changed)
+
+    def update_image(self):
+
+        index = list(self.point)
+        index[self.axis0] = slice(None)
+        index[self.axis1] = slice(None)
+
+        sliced_image = self.image[tuple(index)]
+
+        self.image_canvas.set_image(sliced_image)
 
 
 

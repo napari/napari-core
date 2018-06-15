@@ -20,14 +20,12 @@ from napari.gui.panzoom import PanZoomCamera
 
 class ImageCanvas(SceneCanvas):
 
-
     # get available interpolation methods
     interpolation_method_names = scene.visuals.Image(None).interpolation_functions
     interpolation_method_names = list(interpolation_method_names)
     interpolation_method_names.sort()
     interpolation_method_names.remove('sinc') # does not work well on my machine
     #print(interpolation_method_names)
-
 
 
     def __init__(self, parent_widget, window_width, window_height):
@@ -52,8 +50,6 @@ class ImageCanvas(SceneCanvas):
         self.freeze()
 
         self.set_interpolation('nearest')
-
-
 
 
     def set_image(self, image, dimx=0, dimy=1):
