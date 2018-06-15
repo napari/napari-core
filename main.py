@@ -49,10 +49,10 @@ if __name__ == '__main__':
 
     # opening a 4D single channel image:
 
-    h = 16
-    w = 16
-    d = 512
-    b = 512
+    h = 32
+    w = 32
+    d = 64
+    b = 64
     C, Z, Y, X = np.ogrid[-2.5:2.5:h * 1j, -2.5:2.5:w * 1j, -2.5:2.5:d * 1j, -2.5:2.5:b * 1j]
     image = np.empty((h, w, d, b), dtype=np.float32)
     image[:] = np.exp(- X ** 2 - Y ** 2 - Z ** 2 - C ** 2)  # * (1. + .5*(np.random.rand(h, w)-.5))

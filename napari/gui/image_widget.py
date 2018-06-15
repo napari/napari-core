@@ -55,7 +55,8 @@ class ImageWidget(QWidget):
         slider.setTickPosition(QSlider.TicksBothSides)
         slider.setMinimum(0)
         slider.setMaximum(length-1)
-        slider.setTickInterval(10)
+        tick_interval = int(max(8,length/8))
+        slider.setTickInterval(tick_interval)
         slider.setSingleStep(1)
         grid.addWidget(slider, row, 0)
 
