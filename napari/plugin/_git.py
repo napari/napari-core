@@ -1,25 +1,24 @@
 """Retrieves and manages plugins using git.
 """
+import re
 import git
 
-from .config import plugins_path
+from ._config import plugins_path
 from .._internal.errors import NapariError
 
 
+remote_pattern = (r'^(?:[^:\/?#]+:)?(?:\/\/[^\/?#]*)?[^?#]*?'
+                  r'(?P<name>[^\/:]+)\.git$')
 git_cmd = git.Git(plugins_path)
-
-
-def valid_remote(remote: str) -> bool:
-    """Determines if the link is a valid git remote."""
-    return remote.endswith('.git')
 
 
 def remote_name(remote: str) -> str:
     """Determines a remote repository's name."""
-    if valid_remote(remote):
-        remote = remote[:-4]
-    remote = remote.split(':')[-1]
-    return remote.split('/')[-1]
+    match = re.match(remote_pattern, remote)
+    if not match:
+        raise NapariError('Not a valid git repository: %s' % remote,
+                          display='inline')
+    return match.groupdict()['name']
 
 
 def clone_repo(remote: str) -> str:
@@ -28,20 +27,19 @@ def clone_repo(remote: str) -> str:
     Parameters
     ----------
     remote : str
-        The http or ssh link to the remote repository.
+        URI for the remote repository.
 
     Returns
     -------
     repo_name : str
-        The name of the cloned repository.
+        Name of the cloned repository.
 
     Raises
     ------
     NapariError
-        When the link is not a valid git repository.
+        When the URI is not a valid git repository.
     """
-    if not valid_remote(remote):
-        raise NapariError('Not a valid git repository: %s' % remote,
-                          display='inline')
+    name = remote_name(remote)
     git_cmd.clone(remote)
-    return remote_name(remote)
+
+    return name
