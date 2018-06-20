@@ -97,9 +97,16 @@ venv.bak/
 # Rope project settings
 .ropeproject
 
+# Pycharm project settings
+.idea/
+
 # mkdocs documentation
 /site
 
 # mypy
 .mypy_cache/
 workspace.xml
+
+# Emacs autosaves
+*[~#]
+.#*
