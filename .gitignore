@@ -1,9 +1,12 @@
 # Project-specific configuration files
-config/**
-!config/plugins/
+config/plugins/**
+!config/plugins/index.json
+!config/plugins/index.yaml
+!config/plugins/index.yml
 
 # Project plugins (edit me to add default plugins)
 napari/plugins/**
+!napari/plugins/__init__.py
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
