@@ -3,34 +3,70 @@
     "pluginArray": {
       "type": "array",
       "items": {
-        "oneOf": [
-          { "$ref": "#/definitions/remotePlugin" }
+        "allOf": [
+          { "oneOf": [
+            { "$ref": "#/definitions/pluginLocal" },
+            { "$ref": "#/definitions/pluginGlobal" }
+          ]},
+          { "anyOf": [
+            { "$ref": "#/definitions/pluginBase" },
+            { "$ref": "#/definitions/pluginRemote" }
+          ]}
         ]
       }
     },
-    "remotePlugin": {
+    "pluginBase": {
       "type": "object",
       "properties": {
-        "name":      { "$ref": "#/definitions/name" },
         "namespace": { "$ref": "#/definitions/namespace" },
-        "version":   { "type": "string" },
-        "remote":    { "$ref": "#/definitions/git-reference" },
         "install":   { "$ref": "#/definitions/installArray" }
       },
-      "required": ["name", "namespace", "remote", "version"]
+      "required": ["namespace"]
+    },
+    "pluginLocal": {
+      "allOf": [
+        { "$ref": "#/definitions/pluginBase" },
+        { "properties": {
+            "path": { "$ref": "#/definitions/filepath" },
+          },
+          "required": ["path"]
+        }
+      ]
+    },
+    "pluginGlobal": {
+      "allOf": [
+        { "$ref": "#/definitions/pluginBase" },
+        { "properties": {
+            "global": true,
+            "module": { "$ref": "#/definitions/namespace" }
+          },
+          "required": ["global", "install"]
+        }
+      ]
+    },
+    "pluginRemote": {
+      "allOf": [
+        { "$ref": "#/definitions/pluginBase" },
+        { "properties": {
+            "remote":  { "$ref": "#/definitions/git-reference" },
+            "version": { "type": "string" }
+          },
+          "required": ["remote", "version"]
+        }
+      ]
     },
     "installArray": {
       "type": "array",
       "minItems": 1,
       "items": { "type": "string" }
     },
-    "name": {
+    "filepath": {
       "type": "string",
-      "pattern": "^[._\\-A-Za-z0-9]+$"
+      "pattern": "^[^\\0]+$"
     },
     "namespace": {
       "type": "string",
-      "pattern": "^\\w+$"
+      "pattern": "^[^0-9]\\w*$"
     },
     "git-reference": {
       "type": "string",
