@@ -1,53 +1,56 @@
 # pythonprogramminglanguage.com
-import sys
 from PyQt5.QtCore import Qt
-from PyQt5.QtWidgets import (QApplication, QCheckBox, QGridLayout, QGroupBox,
-                             QMenu, QPushButton, QRadioButton, QVBoxLayout, QWidget, QSlider)
+from PyQt5.QtWidgets import (QGridLayout, QWidget, QSlider, QMenuBar)
 
 from napari.gui.image_canvas import ImageCanvas
 
 
 class ImageWidget(QWidget):
 
-    def __init__(self, image, name=None, window_width=800, window_height=800, parent=None):
-        super(ImageWidget, self).__init__(parent)
+    def __init__(self, image, name=None, window_width=800, window_height=800, is_rgb = False):
+        super(ImageWidget, self).__init__(parent=None)
 
         self.image = image
-        self.name = name
+        self.is_rgb   = is_rgb
+        self.name  = name
         self.point = list(0 for i in self.image.shape)
-        self.nbdim   = len(self.image.shape)
-        self.axis0 = self.nbdim - 2
-        self.axis1 = self.nbdim - 1
+        self.nbdim = len(self.image.shape)
+        self.axis0 = self.nbdim - 2 + (-1 if is_rgb else 0)
+        self.axis1 = self.nbdim - 1 + (-1 if is_rgb else 0)
         self.slider_index_map = {}
-
 
         self.resize(window_width, window_height)
 
+        layout = QGridLayout()
+        self.setLayout(layout)
+        layout.setContentsMargins(0, 0, 0, 0);
+        layout.setColumnStretch(0, 4)
+
+        row = 0
+
         self.image_canvas = ImageCanvas(self, window_width, window_height)
+        layout.addWidget(self.image_canvas.native, row, 0)
+        layout.setRowStretch(row, 1)
+        row += 1
 
 
-
-        grid = QGridLayout()
-        grid.setContentsMargins(0, 0, 0, 10);
-        grid.setColumnStretch(0,4)
-        grid.setRowStretch(0, 4)
-        grid.addWidget(self.image_canvas.native, 0, 0)
-
-        row = 1
-        for axis in range(self.nbdim):
+        for axis in range(self.nbdim + (-1 if is_rgb else 0) ):
             if axis != self.axis0 and axis != self.axis1:
-                self.add_slider(grid, row, axis, self.image.shape[axis])
+                self.add_slider(layout, row, axis, self.image.shape[axis])
+
+                layout.setRowStretch(row, 4)
                 row += 1
 
 
-        #grid.addWidget(self.createExampleGroup("0,1"), 0, 1)
-        #grid.addWidget(self.createExampleGroup("1,1"), 1, 1)
-
-
-        self.setLayout(grid)
 
         self.update_title()
         self.update_image()
+
+
+
+
+
+
 
     def add_slider(self, grid, row,  axis, length):
         slider = QSlider(Qt.Horizontal)
@@ -55,8 +58,10 @@ class ImageWidget(QWidget):
         slider.setTickPosition(QSlider.TicksBothSides)
         slider.setMinimum(0)
         slider.setMaximum(length-1)
-        tick_interval = int(max(8,length/8))
-        slider.setTickInterval(tick_interval)
+        slider.setFixedHeight(17)
+        slider.setTickPosition(QSlider.NoTicks)
+        #tick_interval = int(max(8,length/8))
+        #slider.setTickInterval(tick_interval)
         slider.setSingleStep(1)
         grid.addWidget(slider, row, 0)
 
@@ -68,9 +73,13 @@ class ImageWidget(QWidget):
 
     def update_image(self):
 
+
         index = list(self.point)
         index[self.axis0] = slice(None)
         index[self.axis1] = slice(None)
+
+        if self.is_rgb:
+            index[self.nbdim-1] = slice(None)
 
         sliced_image = self.image[tuple(index)]
 
