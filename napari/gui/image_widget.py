@@ -7,16 +7,15 @@ from napari.gui.image_canvas import ImageCanvas
 
 class ImageWidget(QWidget):
 
-    def __init__(self, image, name=None, window_width=800, window_height=800, is_rgb = False):
+    def __init__(self, image, window_width=800, window_height=800, containing_window=None):
         super(ImageWidget, self).__init__(parent=None)
 
+        self.containing_window = containing_window
         self.image = image
-        self.is_rgb   = is_rgb
-        self.name  = name
-        self.point = list(0 for i in self.image.shape)
-        self.nbdim = len(self.image.shape)
-        self.axis0 = self.nbdim - 2 + (-1 if is_rgb else 0)
-        self.axis1 = self.nbdim - 1 + (-1 if is_rgb else 0)
+        self.point = list(0 for i in self.image.array.shape)
+        self.nbdim = len(self.image.array.shape)
+        self.axis0 = self.nbdim - 2 + (-1 if self.image.is_rgb() else 0)
+        self.axis1 = self.nbdim - 1 + (-1 if self.image.is_rgb() else 0)
         self.slider_index_map = {}
 
         self.resize(window_width, window_height)
@@ -34,21 +33,15 @@ class ImageWidget(QWidget):
         row += 1
 
 
-        for axis in range(self.nbdim + (-1 if is_rgb else 0) ):
+        for axis in range(self.nbdim + (-1 if self.image.is_rgb() else 0) ):
             if axis != self.axis0 and axis != self.axis1:
-                self.add_slider(layout, row, axis, self.image.shape[axis])
+                self.add_slider(layout, row, axis, self.image.array.shape[axis])
 
                 layout.setRowStretch(row, 4)
                 row += 1
 
-
-
-        self.update_title()
         self.update_image()
-
-
-
-
+        self.update_title()
 
 
 
@@ -78,23 +71,26 @@ class ImageWidget(QWidget):
         index[self.axis0] = slice(None)
         index[self.axis1] = slice(None)
 
-        if self.is_rgb:
+        if self.image.is_rgb():
             index[self.nbdim-1] = slice(None)
 
-        sliced_image = self.image[tuple(index)]
+        sliced_image = self.image.array[tuple(index)]
 
         self.image_canvas.set_image(sliced_image)
 
 
-
     def update_title(self):
-        name = self.name
+        name = self.image.name
 
-        if self.name is None:
+        if name is None:
             name = ''
 
-        title = "Image %s %s %s" % (name, str(self.image.shape), self.image_canvas.get_interpolation_name())
+        title = "Image %s %s %s" % (name, str(self.image.array.shape), self.image_canvas.get_interpolation_name())
+
         self.setWindowTitle(title)
+
+
+
 
 
     def set_cmap(self, cmap):
@@ -102,7 +98,7 @@ class ImageWidget(QWidget):
           self.image_canvas.set_cmap(cmap)
 
     def on_key_press(self, event):
-        #print(event.key)
+        print(event.key)
         if (event.key == 'F' or event.key == 'Enter') and not self.isFullScreen():
             #print("showFullScreen!")
             self.showFullScreen()
@@ -112,6 +108,31 @@ class ImageWidget(QWidget):
         elif event.key == 'I':
             self.image_canvas.increment_interpolation_index()
             self.update_title()
+
+    def isFullScreen(self):
+        if self.containing_window == None:
+            return super().isFullScreen()
+        else:
+            return self.containing_window.isFullScreen()
+
+    def showFullScreen(self):
+        if self.containing_window == None:
+            super().showFullScreen()
+        else:
+            self.containing_window.showFullScreen()
+
+    def showNormal(self):
+        if self.containing_window == None:
+            super().showNormal()
+        else:
+            self.containing_window.showNormal()
+
+    def setWindowTitle(self, title):
+        if self.containing_window == None:
+            super().setWindowTitle(title)
+        else:
+            self.containing_window.setWindowTitle(title)
+
 
     def raise_to_top(self):
         super().raise_()
