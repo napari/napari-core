@@ -1,0 +1,81 @@
+{
+  "definitions": {
+    "pluginArray": {
+      "type": "array",
+      "items": {
+        "allOf": [
+          { "oneOf": [
+            { "$ref": "#/definitions/pluginLocal" },
+            { "$ref": "#/definitions/pluginGlobal" }
+          ]},
+          { "anyOf": [
+            { "$ref": "#/definitions/pluginBase" },
+            { "$ref": "#/definitions/pluginRemote" }
+          ]}
+        ]
+      }
+    },
+    "pluginBase": {
+      "type": "object",
+      "properties": {
+        "namespace": { "$ref": "#/definitions/namespace" },
+        "install":   { "$ref": "#/definitions/installArray" }
+      },
+      "required": ["namespace"]
+    },
+    "pluginLocal": {
+      "allOf": [
+        { "$ref": "#/definitions/pluginBase" },
+        { "properties": {
+            "global": false,
+            "path": { "$ref": "#/definitions/filepath" }
+          },
+          "required": ["path"]
+        }
+      ]
+    },
+    "pluginGlobal": {
+      "allOf": [
+        { "$ref": "#/definitions/pluginBase" },
+        { "properties": {
+            "global": true,
+            "module": { "$ref": "#/definitions/namespace" }
+          },
+          "required": ["global", "install"]
+        }
+      ]
+    },
+    "pluginRemote": {
+      "allOf": [
+        { "$ref": "#/definitions/pluginBase" },
+        { "properties": {
+            "remote":  { "$ref": "#/definitions/git-reference" },
+            "version": { "type": "string" }
+          },
+          "required": ["remote", "version"]
+        }
+      ]
+    },
+    "installArray": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "type": "string" }
+    },
+    "filepath": {
+      "type": "string",
+      "pattern": "^[^\\0]+$"
+    },
+    "namespace": {
+      "type": "string",
+      "pattern": "^[^0-9]\\w*$"
+    },
+    "git-reference": {
+      "type": "string",
+      "pattern": "^(?:[^:\\/?#]+:)?(?:\\/\\/[^\\/?#]*)?[^?#]*\\.git$"
+    }
+  },
+
+  "properties": {
+    "plugins": { "$ref": "#/definitions/pluginArray" }
+  }
+}

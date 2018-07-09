@@ -65,7 +65,7 @@ def find_config_file(name: str, parent_dir: str) -> str:
     file_paths = []
 
     for fname in os.listdir(parent_dir):
-        if re.match(name + config_file_pattern, fname, re.IGNORECASE)
+        if re.match(name + config_file_pattern, fname, re.IGNORECASE):
             fpath = osp.join(parent_dir, fname)
 
             file_paths.append(fpath)
@@ -75,7 +75,7 @@ def find_config_file(name: str, parent_dir: str) -> str:
         raise NapariError(f'No {name} file found in {parent_dir}',
                           display='popup')
 
-    if len(index_paths) > 1:
+    if len(file_paths) > 1:
         raise NapariError(f'Multiple {name} files found in {parent_dir}: {file_paths}',
                           display='popup')
 
@@ -87,7 +87,7 @@ def find_config_file(name: str, parent_dir: str) -> str:
 def load_config_file_contents(file_path: str) -> JSON:
     """Loads the contents of a config file.
     """
-    match = re.search(file_path, config_file_pattern, re.IGNORECASE)
+    match = re.search(config_file_pattern, file_path, re.IGNORECASE)
     ext = match.groupdict()['ext']
 
     with open(file_path, 'r') as config_file:

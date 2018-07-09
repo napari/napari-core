@@ -1,3 +1,4 @@
 GitPython>=2.1.10
 PyYAML>=3.12
-jsonschema>=2.6.0
+# jsonschema>=3.0.0
+git+git://github.com/Julian/jsonschema.git@v3.0.0a1#egg=jsonschema
