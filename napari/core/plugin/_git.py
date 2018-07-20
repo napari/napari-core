@@ -6,15 +6,15 @@ import re
 import git
 
 from ._config import plugins_path
+from ..._internal.typing import Progress, Optional, List
 from ..._internal.errors import NapariError
 
 
 remote_pattern = (r'^(?:[^:\/?#]+:)?(?:\/\/[^\/?#]*)?[^?#]*?'
                   r'(?P<name>[^\/:]+)\.git$')
-git_cmd = git.Git(plugins_path)
 
 
-def remote_name(remote: str) -> str:
+def repo_name(remote: str) -> str:
     """Determines a remote repository's name."""
     match = re.match(remote_pattern, remote)
     if not match:
@@ -23,18 +23,26 @@ def remote_name(remote: str) -> str:
     return match.groupdict()['name']
 
 
-def clone_remote(remote: str) -> str:
+def get_repo_path(repo_name: str) -> str:
+    """Gets the path of the specified plugin repo."""
+    return osp.join(plugins_path, repo_name)
+
+
+def clone_remote(remote: str, progress: Optional[Progress] = None) -> git.Repo:
     """Clones a repository to the 'config/plugins' directory.
 
     Parameters
     ----------
     remote : str
         URI for the remote repository.
+    progress : git.RemoteProgress or ProgressCallback, optional
+        Update callback for the progress on a remote git operation.
+        ``callback(op_code, cur_count, max_count=None, message='')``
 
     Returns
     -------
-    repo_name : str
-        Name of the cloned repository.
+    repo_name : git.Repo
+        Cloned repository.
 
     Raises
     ------
@@ -42,14 +50,26 @@ def clone_remote(remote: str) -> str:
         When the URI is not a valid git repository.
     """
     name = remote_name(remote)
-    git_cmd.clone(remote)
+    path = get_repo_path(name)
 
-    return name
+    return git.Repo.clone_from(remote, path, progress=progress)
+
+
+def update_remote_branch(remote: git.Remote, loc: str, rem: str,
+                         progress: Progress, **kwargs) -> List[git.PushInfo]:
+    """Pushes to the specified branch of the remote repository."""
+    return remote.push(f'{local}:{remote}', progress=progress, **kwargs)
+
+
+def delete_remote_branch(remote: git.Remote, branch: str, progress: Progress,
+                         **kwargs) -> List[git.PushInfo]:
+    """Deletes the specified branch of the remote repostiory."""
+    return update_remote_branch('', branch, progress, **kwargs)
 
 
 def get_repo(repo_name: str) -> git.Repo:
     """Gets the specified repo."""
-    return git.Repo(osp.join(plugins_path, repo_name))
+    return git.Repo(get_repo_path(repo_name))
 
 
 def repo_is_cloned(repo_name: str) -> bool:
