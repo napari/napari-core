@@ -49,7 +49,8 @@
       "allOf": [
         { "$ref": "#/definitions/pluginBase" },
         { "properties": {
-            "remote":  { "$ref": "#/definitions/git-reference" },
+            "remote":  { "$ref": "#/definitions/git-remote" },
+            "remote-name": { "$ref": "#/definitions/git-reference" },
             "version": { "type": "string" }
           },
           "required": ["remote", "version"]
@@ -70,6 +71,11 @@
       "pattern": "^[^0-9]\\w*$"
     },
     "git-reference": {
+      "type": "string",
+      "reference": "https://stackoverflow.com/a/12093994",
+      "pattern": "^(?!@$|\\/|.*([\\/.]\\.|\\/\\/|@\\{|\\\\))[^\\000-\\037\\177 ~^:?*[]+\\/[^\\000-\\037\\177 ~^:?*[]+(?<!\\.lock|[\\/.])$"
+    },
+    "git-remote": {
       "type": "string",
       "pattern": "^(?:[^:\\/?#]+:)?(?:\\/\\/[^\\/?#]*)?[^?#]*\\.git$"
     }

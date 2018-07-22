@@ -55,7 +55,7 @@ def update_plugin(plugin: JSON,
     try:
         update_plugin_from_remote(plugin['remote'],
                                   plugin['version'],
-                                  plugin.get('remote_name') or 'origin',
+                                  plugin.get('remote-name') or 'origin',
                                   progress=progress)
     except KeyError:
         pass
