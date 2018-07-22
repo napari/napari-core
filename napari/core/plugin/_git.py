@@ -49,7 +49,7 @@ def clone_remote(remote: str, progress: Optional[Progress] = None) -> git.Repo:
     NapariError
         When the URI is not a valid git repository.
     """
-    name = remote_name(remote)
+    name = repo_name(remote)
     path = get_repo_path(name)
 
     return git.Repo.clone_from(remote, path, progress=progress)
