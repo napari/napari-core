@@ -25,6 +25,7 @@ def validate_index(index: JSON):
 
 
 plugins_path = paths.create_config_path('plugins')
+custom_submodule_path = osp.join(paths.package_path, 'plugins')
 
 schema_path = osp.join(osp.dirname(__file__), 'index_schema.json')
 
