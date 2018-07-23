@@ -97,6 +97,9 @@ def install_plugin(plugin: JSON):
     if plugin.get('path'):
         path = osp.join(plugins_path, plugin['path'])
         namespace_path = osp.join(custom_submodule_path, plugin['namespace'])
+        if osp.isfile(path):
+            namespace_path += '.py'
+
         if osp.exists(namespace_path):
             if os.readlink(namespace_path) != path:
                 os.unlink(namespace_path)

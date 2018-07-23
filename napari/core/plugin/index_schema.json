@@ -27,7 +27,7 @@
       "allOf": [
         { "$ref": "#/definitions/pluginBase" },
         { "properties": {
-            "global": false,
+            "global": { "const": false },
             "path": { "$ref": "#/definitions/filepath" }
           },
           "required": ["path"]
@@ -38,7 +38,7 @@
       "allOf": [
         { "$ref": "#/definitions/pluginBase" },
         { "properties": {
-            "global": true,
+            "global": { "const": true },
             "module": { "$ref": "#/definitions/namespace" }
           },
           "required": ["global", "install"]
