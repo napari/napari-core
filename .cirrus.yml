@@ -3,8 +3,8 @@ task:
 
   env:
     matrix:
-      PY_VER: "=3.6"
-      PY_VER: " "
+      PY_VER: "3.6"
+      PY_VER: "3.7"
 
   matrix:
     - name: linux
@@ -16,7 +16,7 @@ task:
         - curl https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh > install.sh
         - bash ./install.sh -b -p $HOME/conda
         - conda update -yn base conda
-        - conda install -y python$PY_VER
+        - conda install -y python=$PY_VER
 
     - name: windows
       windows_container:
@@ -27,7 +27,7 @@ task:
         - powershell -Command "curl https://repo.continuum.io/miniconda/Miniconda3-latest-Windows-x86_64.exe -OutFile install.exe"
         - start /wait "" install.exe /InstallationType=AllUsers /AddToPath=1 /RegisterPython=1 /S /D=%USERPROFILE%\anaconda
         - conda update -yn base conda
-        - conda install -y python%PY_VER%
+        - conda install -y python=%PY_VER%
         - pip install setuptools-scm
 
     - name: osx
@@ -39,7 +39,7 @@ task:
         - curl https://repo.continuum.io/miniconda/Miniconda3-latest-MacOSX-x86_64.sh > install.sh
         - bash ./install.sh -b -p $HOME/conda
         - conda update -yn base conda
-        - conda install -y python$PY_VER
+        - conda install -y python=$PY_VER
 
   install_script:
     - python -m pip install --retries 3 --upgrade pip
