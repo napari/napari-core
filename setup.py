@@ -38,6 +38,7 @@ CLASSIFIERS = [
 import os
 import sys
 from setuptools import setup
+import versioneer
 
 if sys.version_info < (3, 6):
     sys.stderr.write(f'You are using Python '
@@ -46,12 +47,6 @@ if sys.version_info < (3, 6):
                      + 'Please install Python 3.6 using:\n'
                      + '  $ pip install python==3.6\n\n')
     sys.exit(1)
-
-with open('napari/__init__.py') as f:
-    for line in f:
-        if line.startswith('__version__'):
-            VERSION = line.strip().split()[-1][1:-1]
-            break
 
 with open('requirements/default.txt') as f:
     INSTALL_REQUIRES = [l.strip() for l in f.readlines() if l]
@@ -72,7 +67,8 @@ if __name__ == '__main__':
         long_description=LONG_DESCRIPTION,
         license=LICENSE,
         download_url=DOWNLOAD_URL,
-        version=VERSION,
+        version=versioneer.get_version(),
+        cmdclass=versioneer.get_cmdclass(),
         classifiers=CLASSIFIERS,
         # install_requires=INSTALL_REQUIRES,
         # dependency_links=DEPENDENCY_LINKS,

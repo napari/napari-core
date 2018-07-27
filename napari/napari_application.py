@@ -14,7 +14,3 @@ def main():
     # do stuff here
 
     sys.exit(application.exec_())
-
-
-if __name__ == '__main__':
-    main()
