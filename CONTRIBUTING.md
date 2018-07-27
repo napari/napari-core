@@ -19,9 +19,9 @@ Then installing the required dependencies:
 $ pip install -r requirements.txt
 ```
 
-And setting it up for develppment:
+And setting it up for development:
 ```
-$ python setup.py develop
+$ pip install -e .
 ```
 
 ## Creating a pull request
@@ -33,8 +33,7 @@ $ git pull upstream master
 
 And create feature branches:
 ```
-$ git checkout master
-$ git checkout -b my-feature
+$ git checkout master -b my-feature
 ```
 
 Add and commit your changed files:
