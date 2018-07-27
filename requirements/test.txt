@@ -1,4 +1,0 @@
-pytest>=3.6.3
-pytest-cov>=2.5.1
-flake8>=3.5.0
-codecov>=2.0.15
