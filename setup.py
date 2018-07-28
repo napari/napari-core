@@ -48,7 +48,7 @@ if sys.version_info < (3, 6):
                      + '  $ pip install python==3.6\n\n')
     sys.exit(1)
 
-with open('requirements/default.txt') as f:
+with open('requirements.txt') as f:
     INSTALL_REQUIRES = [l.strip() for l in f.readlines() if l]
 
 DEPENDENCY_LINKS = [l for l in INSTALL_REQUIRES if '+' in l]
