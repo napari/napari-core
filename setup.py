@@ -49,16 +49,21 @@ if sys.version_info < (3, 6):
     sys.exit(1)
 
 with open('requirements.txt') as f:
-    INSTALL_REQUIRES = [l.strip() for l in f.readlines() if l]
+    requirements = [l.strip() for l in f.readlines() if l]
 
-DEPENDENCY_LINKS = [l for l in INSTALL_REQUIRES if '+' in l]
 
-for l in DEPENDENCY_LINKS:
-    INSTALL_REQUIRES.remove(l)
+INSTALL_REQUIRES = []
+REQUIRES = []
 
-for l in INSTALL_REQUIRES:
-    if 'pyqt5' in l:
-        INSTALL_REQUIRES.remove(l)
+for l in requirements:
+    if l.startswith('#'):  # it's a comment
+        requirements.remove(l)
+
+    sep = l.split(' #')
+    INSTALL_REQUIRES.append(sep[0].strip())
+    if len(sep) == 2:
+        REQUIRES.append(sep[1].strip())
+
 
 if __name__ == '__main__':
     setup(
@@ -70,8 +75,8 @@ if __name__ == '__main__':
         version=versioneer.get_version(),
         cmdclass=versioneer.get_cmdclass(),
         classifiers=CLASSIFIERS,
-        # install_requires=INSTALL_REQUIRES,
-        # dependency_links=DEPENDENCY_LINKS,
+        install_requires=INSTALL_REQUIRES,
+        requires=REQUIRES,
         python_requires=f'>={MIN_PY_VER}',
         packages=PACKAGES,
         zip_safe=False,  # the package can run out of an .egg file
