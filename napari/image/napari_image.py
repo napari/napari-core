@@ -16,7 +16,4 @@ class NImage():
         return self.array.dtype
 
     def is_rgb(self):
-        return self.type == ImageType.RGB
-
-
-
+        return self.itype == ImageType.RGB
