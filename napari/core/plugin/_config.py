@@ -1,37 +1,33 @@
 """Handles plugin configuration."""
-import os
 import os.path as osp
-import re
 
-import jsonschema
+from napari.specifications import load_schema, find_specification
 
 from ..._internal import paths
-from ..._internal.errors import NapariError
-from ..._internal.typing import JSON
-
-
-def validate_index(index: JSON):
-    """Validates index contents against schema.
-
-    Raises
-    ------
-    NapariError
-        When the index contents are invalid.
-    """
-    try:
-        jsonschema.validate(index, index_schema)
-    except jsonschema.ValidationError as e:
-        raise NapariError(e.message, display='embedded')
+from ..._internal.typing import JSON, PathLike
 
 
 plugins_path = paths.create_config_path('plugins')
-custom_submodule_path = osp.join(paths.package_path, 'plugins')
+plugins_spec_schema = load_schema('plugins_yml_schema.json')
+napari_spec_schema = load_schema('napari_yml_schema.json')
 
-schema_path = osp.join(osp.dirname(__file__), 'index_schema.json')
 
-with open(schema_path, 'r') as schema_file:
-    index_schema = paths.json.loads(schema_file.read())
+def load_plugins_spec(abs_directory: PathLike = paths.config_path) -> JSON:
+    """Loads a plugins.yml specification."""
+    return find_specification(abs_directory, plugins_spec_schema)
 
-index_file = paths.find_config_file('index', plugins_path)
-index_contents = paths.load_config_file_contents(index_file)
-validate_index(index_contents)
+
+def load_napari_spec(abs_directory: PathLike) -> JSON:
+    """Loads a napari.yml specification."""
+    return find_specification(abs_directory, napari_spec_schema)
+
+
+def get_abs_plugin_path(install_spec: JSON) -> str:
+    """Gets the path of the specified plugin."""
+    try:
+        folder = install_spec['folder']
+    except KeyError:
+        from ._git import repo_name_from_remote  # prevents import loop
+        folder = repo_name_from_remote(install_spec['git_source'])
+
+    return osp.join(plugins_path, folder)

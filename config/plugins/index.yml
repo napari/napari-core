@@ -1,9 +1,0 @@
-plugins:
-  - name: scikit-image
-    namespace: skimage
-    remote: https://github.com/scikit-image/scikit-image.git
-    version: v0.14.0
-    global: true
-    install:
-      - pip install -r requirements.txt
-      - make install

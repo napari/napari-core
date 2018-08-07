@@ -1,0 +1,2 @@
+plugins:
+  - git_source: https://github.com/Napari/napari-hello-world.git

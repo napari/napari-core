@@ -3,10 +3,10 @@
 import os.path as osp
 import re
 
-import git
+from git import Repo
 
-from ._config import plugins_path
-from ..._internal.typing import Progress, Optional, List
+from ._config import plugins_path, get_abs_plugin_path
+from ..._internal.typing import JSON, Progress, Optional, List
 from ..._internal.errors import NapariError
 
 
@@ -14,7 +14,7 @@ remote_pattern = (r'^(?:[^:\/?#]+:)?(?:\/\/[^\/?#]*)?[^?#]*?'
                   r'(?P<name>[^\/:]+)\.git$')
 
 
-def repo_name(remote: str) -> str:
+def repo_name_from_remote(remote: str) -> str:
     """Determines a remote repository's name."""
     match = re.match(remote_pattern, remote)
     if not match:
@@ -23,55 +23,37 @@ def repo_name(remote: str) -> str:
     return match.groupdict()['name']
 
 
-def get_repo_path(repo_name: str) -> str:
-    """Gets the path of the specified plugin repo."""
-    return osp.join(plugins_path, repo_name)
-
-
-def clone_remote(remote: str, progress: Optional[Progress] = None) -> git.Repo:
-    """Clones a repository to the 'config/plugins' directory.
-
-    Parameters
-    ----------
-    remote : str
-        URI for the remote repository.
-    progress : git.RemoteProgress or ProgressCallback, optional
-        Update callback for the progress on a remote git operation.
-        ``callback(op_code, cur_count, max_count=None, message='')``
-
-    Returns
-    -------
-    repo_name : git.Repo
-        Cloned repository.
-
-    Raises
-    ------
-    NapariError
-        When the URI is not a valid git repository.
-    """
-    name = repo_name(remote)
-    path = get_repo_path(name)
-
-    return git.Repo.clone_from(remote, path, progress=progress)
-
-
-def update_remote_branch(remote: git.Remote, loc: str, rem: str,
-                         progress: Progress, **kwargs) -> List[git.PushInfo]:
-    """Pushes to the specified branch of the remote repository."""
-    return remote.push(f'{local}:{remote}', progress=progress, **kwargs)
-
-
-def delete_remote_branch(remote: git.Remote, branch: str, progress: Progress,
-                         **kwargs) -> List[git.PushInfo]:
-    """Deletes the specified branch of the remote repostiory."""
-    return update_remote_branch('', branch, progress, **kwargs)
-
-
-def get_repo(repo_name: str) -> git.Repo:
+def get_repo(install_spec: JSON) -> Repo:
     """Gets the specified repo."""
-    return git.Repo(get_repo_path(repo_name))
+    return Repo.init(get_abs_plugin_path(install_spec))
 
 
-def repo_is_cloned(repo_name: str) -> bool:
-    """Checks if a repo has been downloaded already."""
-    return osp.exists(osp.join(plugins_path, repo_name))
+def init_repo_source(repo: Repo, install_spec: JSON) -> Repo:
+    """Initializes the specified repo's source remote."""
+    remote = install_spec['git_source']
+
+    try:
+        source = repo.remote('source')
+        if remote not in source.urls:
+            source.set_url(remote)
+    except ValueError as e:
+        if str(e) != "Remote named 'source' didn't exist":
+            raise e
+        source = repo.create_remote('source', remote)
+
+    return source
+
+
+def update_plugin_from_remote(install_spec: JSON,
+                              progress: Optional[Progress] = None):
+    """Updates a plugin from a remote Git repository."""
+    repo = get_repo(install_spec)
+
+    source = init_repo_source(repo, install_spec)
+
+    # TODO: handle 'redirect' responses here
+    source.fetch(progress=progress)
+
+    version = install_spec.get('version') or 'FETCH_HEAD'
+
+    repo.git.checkout(version, B='source')
