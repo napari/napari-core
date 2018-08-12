@@ -1,63 +1,50 @@
 """
-Handles the loading/importing of modules into the Napari namespace.
+Handles the loading and importing of plugins into the Napari namespace.
 """
 import sys
-import pathlib
 
-import importlib.abc
-from importlib.util import spec_from_file_location
+from importlib.util import spec_from_file_location, module_from_spec
 from importlib.machinery import ModuleSpec
 
-from ..._internal.typing import PathLike, List, Dict, Module
+from napari.core.typing import PathLike, Iterable, Dict, Module
 
 
-class NapariPluginFinder(importlib.abc.MetaPathFinder):
-    path_registry: Dict[str, PathLike] = dict()
+def get_plugin_namespace(plugin_name: str) -> str:
+    """Gets the namespace under which a plugin is importable."""
+    return f'napari.plugins.{plugin_name}'
 
-    @staticmethod
-    def get_plugin_package(plugin_name: str):
-        return f'napari.plugins.{plugin_name}'
 
-    @classmethod
-    def __install__(cls):
-        if cls.__installed__():
-            raise RuntimeError(f'{cls} already in `sys.meta_path`!')
-        sys.meta_path.append(cls)
+def get_plugin_spec(plugin_name: str, abs_path: PathLike) -> ModuleSpec:
+    """Gets the module specification for a plugin."""
+    namespace = get_plugin_namespace(plugin_name)
+    spec = spec_from_file_location(namespace, location=abs_path)
 
-    @classmethod
-    def __uninstall__(cls):
-        if not cls.__installed__():
-            raise RuntimeError(f'{cls} not in `sys.meta_path`!')
-        sys.meta_path.remove(cls)
+    if not spec:
+        raise ImportError(f"No spec found for '{plugin_name}' in {abs_path}!")
 
-    @classmethod
-    def __installed__(cls):
-        return cls in sys.meta_path
+    return spec
 
-    @classmethod
-    def find_spec(cls, fullname: str, path: PathLike = None,
-                  target: Module = None):
-        try:
-            return spec_from_file_location(fullname,
-                                           cls.path_registry[fullname])
-        except KeyError:
-            pass
 
-        return None  # pass along to the next finder
+def execute_module(module: Module) -> Module:
+    """Executes a module."""
+    try:
+        module.__loader__.exec_module(module)
+    except AttributeError:
+        pass
 
-    @classmethod
-    def add_path(cls, plugin_name: str, abspath: PathLike):
-        cls.path_registry[cls.get_plugin_package(plugin_name)] = abspath
+    return module
 
-    @classmethod
-    def add_paths(cls, plugin_name: str, abspaths: List[PathLike]):
-        # FIXME: dynamically generate napari.plugins.{plugin_name} parent path
-        module_path = cls.get_plugin_package(plugin_name)
-        module = Module(module_path)
-        module.__path__ = []
-        sys.modules[module_path] = module
-        # END FIXME
 
-        for path in abspaths:
-            submodule = pathlib.Path(path).stem
-            cls.add_path(f'{plugin_name}.{submodule}', path)
+def create_namespace_module(plugin_name: str) -> Module:
+    """Creates a dummy namespace module to insert into sys.modules."""
+    namespace = get_plugin_namespace(plugin_name)
+    module = Module(namespace)
+    module.__path__ = []
+
+    return module
+
+
+def make_modules_importable(modules: Iterable[Module]) -> Dict[str, Module]:
+    """Adds a list of modules to sys.modules."""
+    sys.modules.update({ module.__name__: module for module in modules })
+    return sys.modules

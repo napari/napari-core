@@ -1,13 +1,14 @@
-"""Retrieves and manages plugins using git.
+"""
+Retrieves and manages plugins using git.
 """
 import os.path as osp
 import re
 
 from git import Repo
 
-from ._config import plugins_path, get_abs_plugin_path
-from ..._internal.typing import JSON, Progress, Optional, List
-from ..._internal.errors import NapariError
+from ._config import get_abs_plugin_path
+from napari.core.typing import JSON, Progress, Optional, List
+from napari.core.errors import NapariError
 
 
 remote_pattern = (r'^(?:[^:\/?#]+:)?(?:\/\/[^\/?#]*)?[^?#]*?'
@@ -28,10 +29,8 @@ def get_repo(install_spec: JSON) -> Repo:
     return Repo.init(get_abs_plugin_path(install_spec))
 
 
-def init_repo_source(repo: Repo, install_spec: JSON) -> Repo:
+def init_repo_source(repo: Repo, remote: str) -> Repo:
     """Initializes the specified repo's source remote."""
-    remote = install_spec['git_source']
-
     try:
         source = repo.remote('source')
         if remote not in source.urls:
@@ -44,16 +43,15 @@ def init_repo_source(repo: Repo, install_spec: JSON) -> Repo:
     return source
 
 
-def update_plugin_from_remote(install_spec: JSON,
+def update_plugin_from_remote(repo: Repo, remote: str,
+                              version: Optional[str] = None,
                               progress: Optional[Progress] = None):
     """Updates a plugin from a remote Git repository."""
-    repo = get_repo(install_spec)
-
-    source = init_repo_source(repo, install_spec)
+    source = init_repo_source(repo, remote)
 
     # TODO: handle 'redirect' responses here
     source.fetch(progress=progress)
 
-    version = install_spec.get('version') or 'FETCH_HEAD'
+    version = version or 'FETCH_HEAD'
 
     repo.git.checkout(version, B='source')

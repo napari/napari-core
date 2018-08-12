@@ -1,4 +1,5 @@
-"""Filepath utilities.
+"""
+Filepath utilities.
 """
 import os
 import os.path as osp
@@ -8,7 +9,7 @@ import re
 import yaml
 import json
 
-from .typing import JSON
+from napari.core.typing import JSON
 
 
 _file_path = osp.abspath(__file__)
@@ -19,8 +20,8 @@ config_path = osp.join(base_path, 'config')
 
 config_file_pattern = r'\.(?P<ext>json|ya?ml)$'
 
-def make_config_path(dirname: str) -> str:
-    """Generates a new configuration path."""
+def get_config_path(dirname: str) -> str:
+    """Gets a configuration path."""
     return osp.join(config_path, dirname)
 
 
@@ -36,7 +37,7 @@ def mkdir(path: str) -> bool:
 def create_config_path(dirname: str) -> str:
     """Creates a new configuration path and its parents if they does not exist.
     """
-    path = make_config_path(dirname)
+    path = get_config_path(dirname)
     mkdir(path)
     return path
 
