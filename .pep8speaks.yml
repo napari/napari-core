@@ -1,0 +1,8 @@
+scanner:
+  diff_only: True # Only comments on errors pertaining to the patch.
+
+pycodestyle:
+  ignore: # PEP8 violations to ignore.
+    - W503 # newline before binary operator
+
+no_blank_comment: True # No comment is made by the bot if no violations are found.
