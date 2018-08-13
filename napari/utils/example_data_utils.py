@@ -4,7 +4,7 @@ from skimage.transform import rescale
 __bluemarble_url = 'https://eoimages.gsfc.nasa.gov/images/imagerecords/73000/73751/world.topo.bathy.200407.3x5400x2700.jpg'
 __bluemarble_large_url = 'https://eoimages.gsfc.nasa.gov/images/imagerecords/57000/57730/land_ocean_ice_8192.png'
 __bluemarble_verylarge_url = 'https://eoimages.gsfc.nasa.gov/images/imagerecords/73000/73751/world.topo.bathy.200407.3x21600x10800.jpg'
-__bluemarble_large_githuburl = 'https://github.com/Napari/napari_data/blob/master/XYrgb/world.topo.bathy.200407.3x16384x8192.jpg?raw=true'
+__bluemarble_large_githuburl = 'https://github.com/Napari/napari-data/blob/master/XYrgb/world.topo.bathy.200407.3x16384x8192.jpg?raw=true'
 
 from PIL import Image
 import requests
