@@ -82,6 +82,6 @@ if __name__ == '__main__':
         zip_safe=False,  # the package can run out of an .egg file
 
         entry_points={
-            'console_scripts': ['napari = napari.napari_application:main']
+            'console_scripts': ['napari = scripts.napari:main']
         },
     )
