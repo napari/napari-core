@@ -1,6 +1,7 @@
-"""Collection of Napari-generated exceptions.
 """
-from .enums import Display
+Collection of Napari-generated exceptions.
+"""
+from napari.core.enums import Display
 from typing import Union
 
 

@@ -1,4 +1,5 @@
-"""Collection of enumeration types.
+"""
+Collection of enumeration types.
 """
 from enum import Enum, auto
 
