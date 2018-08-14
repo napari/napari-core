@@ -1,4 +1,7 @@
-GitPython>=2.1.10
-PyYAML>=3.12
-# jsonschema>=3.0.0
-git+git://github.com/Julian/jsonschema.git@v3.0.0a1#egg=jsonschema
+GitPython>=2.1.10   # git
+PyYAML>=3.12        # yaml
+jsonschema>=2.6.0   # jsonschema
+pytest>=3.6.3       # pytest
+pytest-cov>= 2.5.1
+flake8>=3.5.0       # flake8
+codecov>=2.0.15     # codecov
