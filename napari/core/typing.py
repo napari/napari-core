@@ -1,15 +1,14 @@
 """
 Commonly used types.
 """
+import typing as typ
 from typing import *
-from typing import __all__
+
 from types import ModuleType as Module
-
 from os import PathLike
-
 from git import RemoteProgress
 
-__all__ += ['JSON', 'Module']
+__all__ = typ.__all__ + ['JSON', 'Module', 'RegistryDecorator']
 
 
 JSON = NewType('JSON', Dict)
@@ -17,3 +16,19 @@ JSON = NewType('JSON', Dict)
 ProgressCallback = Callable[[int, int, Optional[int], Optional[str]],
                             type(None)]
 Progress = Union[RemoteProgress, ProgressCallback]
+
+
+class _RegistryDecorator(typ._FinalTypingBase, _root=True):
+    """Registry decorator type.
+
+    RegistryDecorator[X] is equivalent to Callable[[X], X]
+    where X is a Callable.
+    """
+    __slots__ = ()
+
+    @typ._tp_cache
+    def __getitem__(self, callable_type: Callable) -> Callable:
+        return Callable[[callable_type], callable_type]
+
+
+RegistryDecorator = _RegistryDecorator(_root=True)
