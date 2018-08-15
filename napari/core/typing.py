@@ -18,7 +18,7 @@ ProgressCallback = Callable[[int, int, Optional[int], Optional[str]],
 Progress = Union[RemoteProgress, ProgressCallback]
 
 
-class _RegistryDecorator(typ._FinalTypingBase, _root=True):
+class _RegistryDecorator:
     """Registry decorator type.
 
     RegistryDecorator[X] is equivalent to Callable[[X], X]
@@ -31,4 +31,4 @@ class _RegistryDecorator(typ._FinalTypingBase, _root=True):
         return Callable[[callable_type], callable_type]
 
 
-RegistryDecorator = _RegistryDecorator(_root=True)
+RegistryDecorator = _RegistryDecorator()
