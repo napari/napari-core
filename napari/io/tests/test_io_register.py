@@ -36,3 +36,4 @@ def test_register_decorator():
         return path
 
     assert 'boc' in io_registry
+    assert foo('bar') == 'bar'

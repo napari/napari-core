@@ -49,7 +49,8 @@ def register(filetypes: Union[str, Iterable[str]],
         Overwritten callbacks.
     """
     def register_decorator(func: IOCallback):
-        return _register(filetypes, callback)
+        _register(filetypes, callback)
+        return func
 
     if callback is _CALLBACK:
         return register_decorator
