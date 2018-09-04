@@ -10,10 +10,11 @@ from ._config import (load_plugins_spec, save_plugins_spec,
                       package_spec_from_napari_spec, entry_points as cep)
 from ._git import get_repo, update_plugin_from_remote
 from ._load import (get_plugin_spec, module_from_spec, execute_module,
-                    create_namespace_module, make_modules_importable)
+                    create_namespace_module, make_modules_importable,
+                    make_namespace_spec)
 
 from napari.core.lazy import lazy, LazyAttrs
-from napari.core.typing import JSON, Module, List
+from napari.core.typing import JSON, List, Module, ModuleSpec
 
 
 def update_plugin(install_spec: JSON):
@@ -31,8 +32,8 @@ def update_plugin(install_spec: JSON):
         pass
 
 
-def find_modules(install_spec: JSON) -> List[Module]:
-    """Loads a module given its napari specification."""
+def find_specs(install_spec: JSON) -> List[ModuleSpec]:
+    """Loads module specs given a napari specification."""
     napari_spec = napari_spec_from_install_spec(install_spec)
     package_spec = package_spec_from_napari_spec(napari_spec)
 
@@ -46,36 +47,28 @@ def find_modules(install_spec: JSON) -> List[Module]:
         spec = get_plugin_spec(plugin_name, osp.join(base_path, path))
         specs = [spec]
     except KeyError:
-        specs = []
+        specs = [make_namespace_spec(plugin_name)]
         for path in package_spec['paths']:
             path = normalize_crossplatform_path(path)
             module_name = osp.splitext(osp.basename(path))[0]
+            module_name = plugin_name + '.' + module_name
 
-            spec = get_plugin_spec(f'{plugin_name}.{module_name}',
-                                   osp.join(base_path, path))
+            spec = get_plugin_spec(module_name, osp.join(base_path, path))
             specs.append(spec)
 
-    modules = [ module_from_spec(spec) for spec in specs ]
+    return specs
+
+
+def find_modules(install_spec: JSON) -> List[Module]:
+    """Loads modules given a napari specification."""
+    modules = [ module_from_spec(spec) for spec in find_specs(install_spec) ]
 
     return modules
 
 
-def add_namespace_module(install_spec: JSON, modules: List[Module]):
-    """If a plugin specifies multiple paths, adds a parent dummy
-    namespace module."""
-    napari_spec = napari_spec_from_install_spec(install_spec)
-    package_spec = package_spec_from_napari_spec(napari_spec)
-
-    plugin_name = package_spec['plugin_name']
-
-    if package_spec.get('paths'):
-        modules.append(create_namespace_module(plugin_name))
-
-
 class entry_points(LazyAttrs):
     before_load_hooks = [update_plugin]
-    after_load_hooks = [add_namespace_module,
-                        lambda install_spec, modules:
+    after_load_hooks = [lambda install_spec, modules:
                         make_modules_importable(modules)]
 
     load_function = find_modules

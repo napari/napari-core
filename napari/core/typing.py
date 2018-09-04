@@ -5,6 +5,7 @@ import typing as typ
 from typing import *
 
 from types import ModuleType as Module
+from importlib.machinery import ModuleSpec
 from os import PathLike
 from git import RemoteProgress
 
