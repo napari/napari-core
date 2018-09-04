@@ -24,12 +24,11 @@ class NapariPluginImporter:
             base_path = osp.join(_c.entry_points.plugins_path,
                                  _c.get_abs_plugin_path(install_spec))
 
-            try:
-                path = _c.normalize_crossplatform_path(package_spec['path'])
+            path = package_spec.get('path')
+            if path:
+                path = _c.normalize_crossplatform_path(path)
                 return _l.get_plugin_spec(plugin_name,
                                           osp.join(base_path, path))
-            except KeyError:
-                pass
 
             paths = package_spec['paths']
 
@@ -40,7 +39,6 @@ class NapariPluginImporter:
                 path = _c.normalize_crossplatform_path(_path)
                 module_name = osp.splitext(osp.basename(path))[0]
                 module_name = plugin_name + '.' + module_name
-                print(module_name, fullname)
 
                 if fullname == _l.get_plugin_namespace(module_name):
                     return _l.get_plugin_spec(module_name,

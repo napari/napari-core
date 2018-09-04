@@ -30,7 +30,9 @@ def get_plugin_spec(plugin_name: str, abs_path: PathLike) -> ModuleSpec:
 def make_namespace_spec(plugin_name: str) -> ModuleSpec:
     """Makes a namespace spec."""
     namespace = get_plugin_namespace(plugin_name)
-    return ModuleSpec(name=namespace, loader=None)
+    spec = ModuleSpec(name=namespace, loader=None)
+    spec.submodule_search_locations = []
+    return spec
 
 
 def execute_module(module: Module) -> Module:
