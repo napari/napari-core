@@ -34,15 +34,18 @@ def find_spec_path(abs_dir: PathLike, schema: JSON) -> PathLike:
             break
     else:
         raise FileNotFoundError('No file found matching '
-                                '{osp.join(abs_dir, file_match)}')
+                                f'{osp.join(abs_dir, str(file_match))}')
 
     return path
 
 
 def load_spec(abs_dir: PathLike, schema: JSON) -> JSON:
     """Loads a specification given its schema."""
-    with open(find_spec_path(abs_dir, schema), 'rb') as spec_file:
-        spec = yaml.load(spec_file.read())
+    try:
+        with open(find_spec_path(abs_dir, schema), 'rb') as spec_file:
+            spec = yaml.load(spec_file.read())
+    except FileNotFoundError:
+        spec = dict(plugins=[])
 
     validate_spec(spec, schema)
     return spec
