@@ -11,7 +11,7 @@ from ._config import (load_plugins_spec, save_plugins_spec,
 from ._git import get_repo, update_plugin_from_remote
 from ._load import (get_plugin_spec, module_from_spec, execute_module,
                     create_namespace_module, make_modules_importable,
-                    make_namespace_spec)
+                    make_namespace_spec, module_name_from_filepath)
 
 from napari.core.lazy import lazy, LazyAttrs
 from napari.core.typing import JSON, List, Module, ModuleSpec
@@ -50,7 +50,7 @@ def find_specs(install_spec: JSON) -> List[ModuleSpec]:
         specs = [make_namespace_spec(plugin_name)]
         for path in package_spec['paths']:
             path = normalize_crossplatform_path(path)
-            module_name = osp.splitext(osp.basename(path))[0]
+            module_name = module_name_from_filepath(path)
             module_name = plugin_name + '.' + module_name
 
             spec = get_plugin_spec(module_name, osp.join(base_path, path))

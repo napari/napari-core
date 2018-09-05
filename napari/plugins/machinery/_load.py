@@ -2,6 +2,7 @@
 Handles the loading and importing of plugins into the Napari namespace.
 """
 import sys
+import os.path as osp
 import functools
 
 from importlib.util import spec_from_file_location, module_from_spec
@@ -14,6 +15,14 @@ from napari.core.typing import PathLike, Iterable, Dict, Module, ModuleSpec
 def get_plugin_namespace(plugin_name: str) -> str:
     """Gets the namespace under which a plugin is importable."""
     return f'napari.plugins.{plugin_name}'
+
+
+def module_name_from_filepath(path: str) -> str:
+    """Guesses a module name based on its filepath."""
+    name = osp.splitext(osp.basename(path))[0]
+    if name == '__init__':
+        name = osp.basename(osp.dirname(path))
+    return name
 
 
 def get_plugin_spec(plugin_name: str, abs_path: PathLike) -> ModuleSpec:
