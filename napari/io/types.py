@@ -1,8 +1,7 @@
 """
 IO-specific type definitions.
 """
-from napari.core.typing import Callable, PathLike
-from napari.state import State
+from napari.core.typing import Callable, PathLike, Any
 
-
-IOCallback = Callable[[PathLike], State]
+InputCallback = Callable[[PathLike], Any]
+OutputCallback = Callable[[Any, PathLike], Any]
