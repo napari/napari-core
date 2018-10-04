@@ -14,9 +14,12 @@ from napari.core.typing import JSON
 
 _file_path = osp.abspath(__file__)
 _dir_path = osp.dirname(_file_path)
-package_path = osp.dirname(_dir_path)
-base_path = osp.dirname(package_path)
-config_path = osp.join(base_path, 'config')
+package_path = osp.dirname(osp.dirname(_dir_path))
+
+home_path = osp.expanduser('~')
+
+# TODO: allow config path to be configurable like with Jupyter
+config_path = osp.join(home_path, '.napari')
 
 config_file_pattern = r'\.(?P<ext>json|ya?ml)$'
 

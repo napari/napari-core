@@ -2,6 +2,7 @@
 Manages plugins.
 """
 import os.path as osp
+from warnings import warn
 
 from ._config import (load_plugins_spec, save_plugins_spec,
                       load_napari_spec, install_specs_from_plugins_spec,
@@ -17,12 +18,21 @@ from napari.core.lazy import lazy, LazyAttrs
 from napari.core.typing import JSON, List, Module, ModuleSpec
 
 
-def update_plugin(install_spec: JSON):
-    """Updates a plugin given its specification."""
-    if install_spec.get('development'):
-        return
+try:
+    from pip import main as pip_main
+except ImportError:  # pip.__version__ >= 10.0.0
+    from pip._internal import main as pip_main
 
+PIP_INSTALL = ['install', '-qqq']
+IPY_WARN = False
+
+
+def update_plugin(install_spec: JSON):
+    """Updates a plugin with git given its specification."""
     try:
+        if install_spec.get('development'):
+            return
+
         repo = get_repo(install_spec)
         remote = install_spec['git_source']
         version = install_spec.get('version')
@@ -30,6 +40,34 @@ def update_plugin(install_spec: JSON):
         update_plugin_from_remote(repo, remote, version)
     except KeyError:
         pass
+
+
+def install_plugin_pip_reqs(install_spec: JSON):
+    """Installs a plugin's pip requirements."""
+    try:
+        napari_spec = napari_spec_from_install_spec(install_spec)
+        pip_requirements = napari_spec['pip_requirements']
+    except KeyError:
+        pass
+    else:
+        try:
+            __IPYTHON__
+        except NameError:
+            pass
+        else:
+            global IPY_WARN
+            if not IPY_WARN:
+                warn('running from IPython - cannot pip install')
+                IPY_WARN = True
+            return
+
+        if isinstance(pip_requirements, str):
+            # requirements.txt-like file
+            path = osp.join(get_abs_plugin_path(install_spec),
+                            pip_requirements)
+            pip_main(PIP_INSTALL.extend(['-r', path]))
+        else:
+            pip_main(PIP_INSTALL.extend(pip_requirements))
 
 
 def find_specs(install_spec: JSON) -> List[ModuleSpec]:
@@ -67,7 +105,8 @@ def find_modules(install_spec: JSON) -> List[Module]:
 
 
 class entry_points(LazyAttrs):
-    before_load_hooks = [update_plugin]
+    before_load_hooks = [update_plugin,
+                         install_plugin_pip_reqs]
     after_load_hooks = [lambda install_spec, modules:
                         make_modules_importable(modules)]
 

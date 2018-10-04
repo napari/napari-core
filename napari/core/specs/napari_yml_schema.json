@@ -120,8 +120,11 @@
           "$ref": "#/definitions/filepath"
         },
         {
-          "description": "pip requirement.",
-          "type": "string"
+          "type": "array",
+          "items": {
+            "description": "pip requirement.",
+            "type": "string"
+          }
         }
       ]
     },

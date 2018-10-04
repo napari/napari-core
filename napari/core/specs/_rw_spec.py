@@ -4,7 +4,7 @@ import yaml
 import json
 from jsonschema import validate as validate_spec
 
-from napari.core.typing import PathLike, JSON
+from napari.core.typing import PathLike, JSON, Optional
 
 
 def load_schema(schema_path: PathLike) -> JSON:
@@ -39,13 +39,13 @@ def find_spec_path(abs_dir: PathLike, schema: JSON) -> PathLike:
     return path
 
 
-def load_spec(abs_dir: PathLike, schema: JSON) -> JSON:
+def load_spec(abs_dir: PathLike, schema: JSON) -> Optional[JSON]:
     """Loads a specification given its schema."""
     try:
         with open(find_spec_path(abs_dir, schema), 'rb') as spec_file:
             spec = yaml.load(spec_file.read())
     except FileNotFoundError:
-        spec = dict(plugins=[])
+        return None
 
     validate_spec(spec, schema)
     return spec

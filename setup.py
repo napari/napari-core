@@ -9,7 +9,6 @@ DISTNAME = 'napari'
 DESCRIPTION = 'Plugin-based image viewing and analysis tool'
 LONG_DESCRIPTION = __doc__
 LICENSE = 'BSD 3-Clause'
-PACKAGES = ['napari']
 DOWNLOAD_URL = 'https://github.com/Napari/napari'
 
 CLASSIFIERS = [
@@ -37,7 +36,7 @@ CLASSIFIERS = [
 
 import os
 import sys
-from setuptools import setup
+from setuptools import setup, find_packages
 import versioneer
 
 if sys.version_info < (3, 6):
@@ -78,7 +77,7 @@ if __name__ == '__main__':
         install_requires=INSTALL_REQUIRES,
         requires=REQUIRES,
         python_requires=f'>={MIN_PY_VER}',
-        packages=PACKAGES,
+        packages=find_packages(),
         zip_safe=False,  # the package can run out of an .egg file
 
         entry_points={

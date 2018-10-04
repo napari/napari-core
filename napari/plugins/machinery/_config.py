@@ -12,7 +12,11 @@ from napari.core.typing import JSON, PathLike, List, Optional
 
 def load_plugins_spec(abs_dir: Optional[PathLike] = paths.config_path) -> JSON:
     """Loads a plugins.yml specification."""
-    return load_spec(abs_dir, entry_points.plugins_spec_schema)
+    spec = load_spec(abs_dir, entry_points.plugins_spec_schema)
+    if spec is None:
+        spec = dict(plugins=[])
+
+    return spec
 
 
 def save_plugins_spec(spec: JSON,
@@ -28,9 +32,9 @@ def load_napari_spec(abs_dir: PathLike) -> JSON:
 
 
 def normalize_crossplatform_path(path: str) -> PathLike:
-    """Normalizes cross-platform paths by replacing {sep} with the proper
+    """Normalizes cross-platform paths by replacing / with the proper
     path separator."""
-    return path.replace('{sep}', osp.sep)
+    return path.replace('/', osp.sep)
 
 
 def get_abs_plugin_path(install_spec: JSON) -> str:
