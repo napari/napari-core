@@ -1,7 +1,9 @@
 """
 IO-specific type definitions.
 """
-from napari.core.typing import Callable, PathLike, Any
+from napari.core.typing import Callable, PathLike, Any, Union
 
-InputCallback = Callable[[PathLike], Any]
-OutputCallback = Callable[[Any, PathLike], Any]
+
+ReadFileExtCallback = Callable[[PathLike], Any]
+WriteFileExtCallback = Callable[[Any, PathLike], Any]
+RWCallback = Union[ReadFileExtCallback, WriteFileExtCallback]
