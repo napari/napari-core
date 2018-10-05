@@ -1,19 +1,12 @@
-from napari.io._rw_register import (_register_one, _register, _check_filetypes,
+from napari.core.register import Registry
+from napari.io._rw_register import (_register, _check_filetypes,
                                     _parse_args, _register_decorator)
 
 import pytest
 
 
-def test_register_one():
-    registry = dict()
-
-    _register_one(registry, '.foo', lambda path: path)
-    assert '.foo' in registry
-    assert registry['.foo']('bar') == 'bar'
-
-
 def test_register():
-    registry = dict()
+    registry = Registry()
 
     _register(registry, ('.baz',), lambda path: path)
     assert '.baz' in registry
@@ -70,7 +63,7 @@ def test_parse_args():
 
 
 def test_register_decorator():
-    registry = dict()
+    registry = Registry()
 
     def register(*args):
         return _register_decorator(registry, args)
@@ -85,26 +78,24 @@ def test_register_decorator():
     assert '.bar' in registry
     assert '.baz' in registry
 
-    registry.pop('*')
-
     @register
     def foo(path):
         return path
 
     assert foo('foo') == 'foo'
-    assert registry['*'] is foo
+    assert '*' in registry
 
     @register('.boc')
     def bar(path):
         return path
 
     assert bar('bar') == 'bar'
-    assert registry['.boc'] is bar
+    assert '.boc' in registry
 
     @register('.bor', '.boz')
     def baz(path):
         return path
 
     assert baz('baz') == 'baz'
-    assert registry['.bor'] is baz
-    assert registry['.boz'] is baz
+    assert '.bor' in registry
+    assert '.boz' in registry

@@ -1,23 +1,5 @@
-from napari.processing._register import (processing_registry,
-                                         register, fields, _register)
+from napari.processing._register import processing_registry, register, static
 
-
-def test_register():
-    def foo():
-        return 42
-
-    _register('foo', foo)
-    foo_entry = processing_registry['foo']
-
-    for field in fields:
-        callback = fields[field]
-        assert foo_entry[field] == callback(foo)
-
-def test_register_overwrite():
-    _register('bar', lambda path: path)
-    overwritten = _register('bar', lambda path: path)
-
-    assert overwritten
 
 def test_register_function():
     register('bac', lambda path: path)
@@ -30,3 +12,7 @@ def test_register_decorator():
 
     assert 'boc' in processing_registry
     assert foo('bar') == 'bar'
+
+    entry = processing_registry['boc']
+    for field, func in static.entry_formats:
+        assert getattr(entry, field) == func(foo)

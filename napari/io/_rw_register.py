@@ -1,22 +1,18 @@
 """
 Registration for file extension callbacks.
 """
+from napari.core.register import Registry
+
 from napari.core.typing import (RegistryDecorator, Callable, Union,
                                 Dict, List, Sequence, Optional, Tuple)
-from .types import ReadFileExtCallback, WriteFileExtCallback, RWCallback
+from .types import ReadsFileExtCallback, WritesFileExtCallback, RWCallback
 
 
-def _register_one(registry: Dict[str, RWCallback],
-                  filetype: str,
-                  callback: RWCallback):
-    registry[filetype] = callback
-
-
-def _register(registry: Dict[str, RWCallback],
+def _register(registry: Registry,
               filetypes: Sequence[str],
               callback: RWCallback) -> RWCallback:
     for filetype in filetypes:
-        _register_one(registry, filetype, callback)
+        registry.register(filetype, callback)
     return callback
 
 
@@ -30,7 +26,7 @@ def _check_filetypes(filetypes: Sequence[str]):
                             f'got {type(filetype)}')
         if not filetype.startswith('.'):
             raise ValueError(f'filetype extension {filetype}'
-                            "must begin with '.'")
+                             "must begin with '.'")
 
 
 def _parse_args(args: Sequence) -> Tuple[RWCallback, Sequence[str]]:
@@ -61,11 +57,11 @@ def _parse_args(args: Sequence) -> Tuple[RWCallback, Sequence[str]]:
     return callback, filetypes
 
 
-def _register_decorator(registry: Dict[str, RWCallback],
+def _register_decorator(registry: Registry,
                         args: Sequence) -> RegistryDecorator[RWCallback]:
-    if not isinstance(registry, dict):
+    if not isinstance(registry, Registry):
         raise TypeError(f'expected registry {registry} '
-                        f'to be dict, got {type(registry)}')
+                        f'to be Registry, got {type(registry)}')
 
     callback, filetypes = _parse_args(args)
 
@@ -78,10 +74,10 @@ def _register_decorator(registry: Dict[str, RWCallback],
     return decorator
 
 
-read_file_ext_registry: Dict[str, ReadFileExtCallback] = dict()
+reads_file_ext_registry = Registry()
 
 
-def read_file_ext(*args) -> RegistryDecorator[ReadFileExtCallback]:
+def reads_file_ext(*args) -> RegistryDecorator[ReadsFileExtCallback]:
     """Registers a function to open files based on extension.
     Can also be used as a decorator.
 
@@ -89,21 +85,21 @@ def read_file_ext(*args) -> RegistryDecorator[ReadFileExtCallback]:
     ----------
     filetypes : string or sequence of string
         Extension of the file(s) (including the '.').
-    callback : Read_File_ExtCallback, optional
+    callback : ReadsFileExtCallback, optional
         Callback to register. If not provided, will act as a decorator.
 
     Returns
     -------
-    overwritten : list of Read_File_ExtCallback or None
+    overwritten : list of ReadsFileExtCallback or None
         Overwritten callbacks.
     """
-    return _register_decorator(read_file_ext_registry, args)
+    return _register_decorator(reads_file_ext_registry, args)
 
 
-write_file_ext_registry: Dict[str, WriteFileExtCallback] = dict()
+writes_file_ext_registry = Registry()
 
 
-def write_file_ext(*args) -> RegistryDecorator[WriteFileExtCallback]:
+def writes_file_ext(*args) -> RegistryDecorator[WritesFileExtCallback]:
     """Registers a function to write files based on extension.
     Can also be used as a decorator.
 
@@ -111,12 +107,12 @@ def write_file_ext(*args) -> RegistryDecorator[WriteFileExtCallback]:
     ----------
     filetypes : string or sequence of string
         Extension of the file(s) (including the '.').
-    callback : Write_File_ExtCallback, optional
+    callback : WritesFileExtCallback, optional
         Callback to register. If not provided, will act as a decorator.
 
     Returns
     -------
-    overwritten : list of Write_File_ExtCallback or None
+    overwritten : list of WritesFileExtCallback or None
         Overwritten callbacks.
     """
-    return _register_decorator(write_file_ext_registry, args)
+    return _register_decorator(writes_file_ext_registry, args)

@@ -1,12 +1,16 @@
 """
-Processing registration machinery.
+Analysis registration machinery.
 """
 import inspect
+from collections import namedtuple
+
+from napari.core.lazy import LazyAttrs, lazy
+from napari.core.register import Registry, register as _register
 
 from napari.core.typing import Dict, Callable, Any
 
 
-analysis_registry: Dict[str, Dict[str, Any]] = dict()
+analysis_registry = Registry()
 
 fields: Dict[str, Callable[[Callable], Any]] = {
     'func': lambda func: func,
@@ -15,45 +19,36 @@ fields: Dict[str, Callable[[Callable], Any]] = {
 }
 
 
-def _register(path: str, func: Callable):
+class static(LazyAttrs):
+    entry_formats = lazy(lambda: tuple(fields.items()))
+    entry_type = lazy(lambda: namedtuple('AnalysisEntry',
+                                         tuple(f[0] for f in
+                                               static.entry_formats)))
+
+
+def to_kv(callback, others):
+    path, = others
+
     entry = dict()
+    for field, func in static.entry_formats:
+        entry[field] = func(callback)
 
-    for field in fields:
-        callback = fields[field]
-        entry[field] = callback(func)
-
-    try:
-        overwritten = analysis_registry[path]
-    except KeyError:
-        overwritten = None
-
-    analysis_registry[path] = entry
-    return overwritten
+    return path, static.entry_type(**entry)
 
 
-_DECORATE = object()
-
-
-def register(path: str, func: Callable = _DECORATE):
-    """Registers a processing function. Can also be used as a decorator.
+def register(*args):
+    """Registers an analysis function. Can also be used as a decorator.
 
     Parameters
     ----------
     path : str
         Path under which this function will be stored.
-    func : callable
+    func : callable, optional
         Function to register.
 
     Returns
     -------
-    overwritten : dict of str: any or None
-        The entry which was overwritten; if any.
+    func : callable
+        Registered function.
     """
-    def register_decorator(func: Callable):
-        _register(path, func)
-        return func
-
-    if func is _DECORATE:
-        return register_decorator
-
-    return _register(path, func)
+    return _register(analysis_registry, args, to_kv=to_kv)

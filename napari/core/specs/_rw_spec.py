@@ -58,7 +58,7 @@ def save_spec(spec: JSON, abs_dir: PathLike, schema: JSON) -> PathLike:
     except FileNotFoundError:
         spec_path = schema['fileMatch'][0]
 
-    with open(spec_path, 'wb') as spec_file:
+    with open(spec_path, 'w', encoding='utf-8') as spec_file:
         yaml.dump(spec, spec_file, allow_unicode=True)
 
     return spec_path
