@@ -15,5 +15,16 @@ class LazyAttrsMeta(type):
         return attr
 
 
-class LazyAttrs(object, metaclass=LazyAttrsMeta):
+class LazyAttrsObject(object):
+    def __getattribute__(self: object, name: str):
+        attr = object.__getattribute__(self, name)
+
+        if isinstance(attr, lazy):
+            attr = attr.resolve()
+            object.__setattr__(self, name, attr)
+
+        return attr
+
+
+class LazyAttrsClass(LazyAttrsObject, metaclass=LazyAttrsMeta):
     pass

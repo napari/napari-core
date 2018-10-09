@@ -6,7 +6,7 @@ import os.path as osp
 from napari.core.specs import load_schema, load_spec, save_spec
 
 from napari.core import paths
-from napari.core.lazy import lazy, LazyAttrs
+from napari.core.lazy import lazy, LazyAttrsClass
 from napari.core.typing import JSON, PathLike, List, Optional
 
 
@@ -66,7 +66,7 @@ def package_spec_from_napari_spec(napari_spec: JSON) -> JSON:
     return napari_spec['plugin_info']
 
 
-class entry_points(LazyAttrs):
+class entry_points(LazyAttrsClass):
     plugins_path = lazy(lambda: paths.create_config_path('plugins'))
     plugins_spec_schema = lazy(lambda: load_schema('plugins_yml_schema.json'))
     napari_spec_schema = lazy(lambda: load_schema('napari_yml_schema.json'))

@@ -14,7 +14,7 @@ from ._load import (get_plugin_spec, module_from_spec, execute_module,
                     create_namespace_module, make_modules_importable,
                     make_namespace_spec, module_name_from_filepath)
 
-from napari.core.lazy import lazy, LazyAttrs
+from napari.core.lazy import lazy, LazyAttrsClass
 from napari.core.typing import JSON, List, Module, ModuleSpec
 
 
@@ -104,7 +104,7 @@ def find_modules(install_spec: JSON) -> List[Module]:
     return modules
 
 
-class entry_points(LazyAttrs):
+class entry_points(LazyAttrsClass):
     before_load_hooks = [update_plugin,
                          install_plugin_pip_reqs]
     after_load_hooks = [lambda install_spec, modules:
