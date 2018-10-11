@@ -1,0 +1,48 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "fileMatch": [
+    "plugins.yaml",
+    "plugins.yml"
+  ],
+  "definitions": {
+    "git_url": {
+      "description": "Repository git source URL.",
+      "type": "string",
+      "TODO": "add actual http(s)://{...}.git pattern"
+    }
+  },
+  "properties": {
+    "plugins": {
+      "description": "List of plugin sources.",
+      "type": "array",
+      "items": {
+        "type": "object",
+        "anyOf": [
+          {
+            "properties": {
+              "git_source": { "$ref": "#/definitions/git_url" },
+              "version": {
+                "description": "The git branch/tag/commit to use as a source.",
+                "type": "string"
+              },
+              "development": {
+                "description": "If enabled, will treat the repository as a normal folder (no version control)."
+              }
+            },
+            "required": ["git_source"]
+          },
+          {
+            "properties": {
+              "folder": {
+                "description": "The folder from which the plugin is sourced. Can be used with 'git_source' to handle repository name collisions.",
+                "type": "string"
+              }
+            },
+            "required": ["folder"]
+          }
+        ]
+      }
+    }
+  },
+  "required": ["plugins"]
+}

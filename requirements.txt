@@ -1,7 +1,7 @@
-vispy>=0.5.3     # vispy
-PyOpenGL>=3.1.0  # OpenGl
-pyqt5>=5.10.1    # PyQt5
-pytest>=3.6.3    # pytest
-pytest-cov>=2.5.1
-flake8>=3.5.0    # flake8
-codecov>=2.0.15  # codecov
+GitPython>=2.1.10   # git
+PyYAML>=3.12        # yaml
+jsonschema>=2.6.0   # jsonschema
+pytest>=3.6.3       # pytest
+pytest-cov>= 2.5.1
+flake8>=3.5.0       # flake8
+codecov>=2.0.15     # codecov

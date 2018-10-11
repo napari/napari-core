@@ -1,0 +1,141 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "fileMatch": [
+    "napari.yaml",
+    "napari.yml"
+  ],
+  "definitions": {
+    "git_url": {
+      "description": "Repository git source URL.",
+      "type": "string",
+      "TODO": "add actual http(s)://{...}.git pattern"
+    },
+    "filepath": {
+      "type": "string",
+      "TODO": "add regex pattern"
+    },
+    "python_file": {
+      "type": "string",
+      "TODO": "add regex pattern"
+    },
+    "python_module_name": {
+      "type": "string",
+      "TODO": "add regex pattern"
+    },
+    "version": {
+      "oneOf": [
+        {
+          "description": "The exact version.",
+          "type": "string"
+        },
+        {
+          "description": "The minimum/maximum version.",
+          "type": "object",
+          "properties": {
+            "minimum": { "type": "string" },
+            "maximum": { "type": "string" },
+            "min": { "type": "string" },
+            "max": { "type": "string" }
+          },
+          "anyOf": [
+            { "oneOf": [
+              { "required": ["minimum"] },
+              { "required": ["min"] }
+            ]},
+            { "oneOf": [
+              { "required": ["maximum"] },
+              { "required": ["max"] }
+            ]}
+          ]
+        }
+      ]
+    }
+  },
+  "properties": {
+    "plugin_info": {
+      "description": "Information about the plugin.",
+      "properties": {
+        "author_name": {
+          "description": "The plugin maintainer's name.",
+          "type": "string"
+        },
+        "author_email": {
+          "description": "The plugin maintainer's email.",
+          "type": "string",
+          "format": "email"
+        },
+        "short_description": {
+          "description": "A short description of the plugin.",
+          "type": "string"
+        },
+        "plugin_name": {
+          "description": "The name that the plugin will be available under in napari.plugins.",
+          "$ref": "#/definitions/python_module_name"
+        },
+        "path": {
+          "description": "Path to the python source file.",
+          "$ref": "#/definitions/python_file"
+        },
+        "paths": {
+          "description": "Paths to the python source files.",
+          "type": "array",
+          "items": { "$ref": "#/definitions/python_file" }
+        }
+      },
+      "allOf": [
+        { "required": ["plugin_name"] },
+        { "oneOf": [
+          { "required": ["path"] },
+          { "required": ["paths"] }
+        ]}
+      ]
+    },
+    "redirect": {
+      "description": "If this repository is no longer being maintained, please redirect to another one.",
+      "$ref": "#/definitions/git_url"
+    },
+    "plugin_dependencies": {
+      "description": "A list of depended-on plugins.",
+      "type": "array",
+      "items": {
+        "oneOf": [
+          { "$ref": "#/definitions/git_url" },
+          {
+            "type": "object",
+            "properties": {
+              "git_source": { "$ref": "#/definitions/git_url" },
+              "version": { "$ref": "#/definitions/version" },
+              "namespace": { "$ref": "#/definitions/python_module_name" }
+            },
+            "required": ["git_source"]
+          }
+        ]
+      }
+    },
+    "pip_requirements": {
+      "description": "A requirements.txt file or a list of pip requirements to install.",
+      "oneOf": [
+        {
+          "description": "Location of the requirements.txt file.",
+          "$ref": "#/definitions/filepath"
+        },
+        {
+          "type": "array",
+          "items": {
+            "description": "pip requirement.",
+            "type": "string"
+          }
+        }
+      ]
+    },
+    "napari_version": {
+      "description": "The exact napari version to specify or the bounds for it.",
+      "$ref": "#/definitions/version"
+    },
+    "update_script": {
+      "description": "The python script to run upon updating the repository.",
+      "$ref": "#/definitions/python_file"
+    }
+  },
+  "required": ["plugin_info"]
+}
